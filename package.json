@@ -1,0 +1,21 @@
+{
+  "name": "clawdbot-trading-bot",
+  "version": "1.0.0",
+  "description": "Autonomous Trading Bot with Clawdbot",
+  "main": "index.js",
+  "scripts": {
+    "start": "clawdbot gateway start",
+    "dev": "clawdbot gateway start --dev",
+    "status": "clawdbot status"
+  },
+  "dependencies": {
+    "clawdbot": "latest",
+    "dotenv": "^16.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": ["trading", "bot", "mt5", "clawdbot"],
+  "author": "Tường",
+  "license": "MIT"
+}
