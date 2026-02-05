@@ -1,7 +1,35 @@
+require('dotenv').config();
 const express = require('express');
 const { spawn } = require('child_process');
 const app = express();
 const port = process.env.PORT || 3000;
+
+// Validate required environment variables
+const requiredEnvVars = [
+  'TELEGRAM_BOT_TOKEN',
+  'TELEGRAM_CHAT_ID',
+  'MT5_ACCOUNT',
+  'MT5_PASSWORD',
+  'MT5_SERVER'
+];
+
+function validateEnvironment() {
+  const missing = requiredEnvVars.filter(varName => !process.env[varName]);
+  
+  if (missing.length > 0) {
+    console.warn('⚠️ Missing environment variables:', missing);
+    console.log('📝 Please configure these in Render dashboard');
+    return false;
+  }
+  
+  console.log('✅ Environment validation passed');
+  console.log(`📊 Telegram Chat ID: ${process.env.TELEGRAM_CHAT_ID}`);
+  console.log(`📊 MT5 Account: ${process.env.MT5_ACCOUNT}`);
+  console.log(`📊 MT5 Server: ${process.env.MT5_SERVER}`);
+  console.log(`📊 Trading Risk: ${process.env.TRADING_RISK_PERCENT || 1.5}%`);
+  
+  return true;
+}
 
 // Start Clawdbot Gateway (non-blocking)
 function startClawdbot() {
@@ -39,11 +67,16 @@ function startClawdbot() {
 
 // Health endpoint
 app.get('/health', (req, res) => {
+  const envStatus = validateEnvironment() ? 'configured' : 'missing_vars';
+  
   res.json({ 
     status: 'ok', 
     service: 'Clawdbot Trading Bot',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
+    config_status: envStatus,
+    mt5_account: process.env.MT5_ACCOUNT ? '***' + process.env.MT5_ACCOUNT.slice(-4) : 'not_set',
+    telegram_chat: process.env.TELEGRAM_CHAT_ID || 'not_set'
   });
 });
 
@@ -56,6 +89,9 @@ app.listen(port, () => {
   console.log(`✅ Express server started on port ${port}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔧 Node version: ${process.version}`);
+  
+  // Validate environment
+  validateEnvironment();
   
   // Start Clawdbot after server is ready
   setTimeout(() => {
